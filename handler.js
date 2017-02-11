@@ -12,56 +12,19 @@ module.exports.hello = (event, context, callback) => {
 module.exports.addRating = (event, context, callback) => {
   var docClient = new AWS.DynamoDB.DocumentClient();
   var params = JSON.parse(event.body);
-  var Item = {
-      id: uuid.v4(),
-      beer: params.beer,
-      rating: Number(params.rating),
-	  description: params.description
-  };
-
-  docClient.put({TableName: 'slsbeer', Item: Item}, (error) => {
-    if (error) {
-      callback(error);
-    }
-
-    callback(null, {
-      statusCode: 201,
-      headers: {
-        'Access-Control-Allow-Origin': '*'
-      },
-    });
-  });
+  var beer = new Beer(docClient,uuid);
+  beer.addRating(params,callback);
 }
 
 module.exports.getRating = (event, context, callback) => {
   var docClient = new AWS.DynamoDB.DocumentClient();
-  console.log(event);
   var params = {
     TableName: 'slsbeer',
     FilterExpression : 'beer = :beer_name',
     ExpressionAttributeValues : {':beer_name' : event.pathParameters.beer}
   }
-
-  docClient.scan(params, (error, data) => {
-    if (error) {
-      callback(error);
-    }
-
-    var sum = data.Items.reduce((accumulated, current) => {
-      return accumulated + current.rating}
-    , 0);
-
-    var average = sum/data.Items.length;
-
-    callback(null, {
-      statusCode: 200,
-      headers: {
-        'Access-Control-Allow-Origin': '*'
-      },
-      body: JSON.stringify({ averageRating: average }),
-    })
-
-  });
+  var beer = new Beer(docClient,uuid);
+  beer.getRating(params,callback);
 }
 
 
@@ -70,19 +33,6 @@ module.exports.allRatings = (event, context, callback) => {
   var params = {
     TableName: 'slsbeer'
   }
-
-  docClient.scan(params, (error, data) => {
-    if (error) {
-      callback(error);
-    }
-
-    callback(null, {
-      statusCode: 200,
-      headers: {
-        'Access-Control-Allow-Origin': '*'
-      },
-      body: JSON.stringify(data.Items),
-    })
-
-  });
+  var beer = new Beer(docClient,uuid);
+  beer.allRatings(params,callback);
 }

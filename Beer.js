@@ -18,13 +18,13 @@ class Beer{
 	}
 	addRating(params,callback){
 		  var Item = {
-			  id: uuid.v4(),
+			  id: this.uuid.v4(),
 			  beer: params.beer,
 			  rating: Number(params.rating),
 			  description: params.description
 		  };
 
-		  docClient.put({TableName: 'slsbeer', Item: Item}, (error) => {
+		  this.docClient.put({TableName: 'slsbeer', Item: Item}, (error) => {
 			if (error) {
 			  callback(error);
 			}
@@ -38,7 +38,7 @@ class Beer{
 		  });
 	}
 	getRating(params,callback){
-	  docClient.scan(params, (error, data) => {
+	  this.docClient.scan(params, (error, data) => {
 		if (error) {
 		  callback(error);
 		}
@@ -60,7 +60,7 @@ class Beer{
 	  });
 	}
 	allRatings(params,callback){
-		docClient.scan(params, (error, data) => {
+		this.docClient.scan(params, (error, data) => {
 			if (error) {
 			  callback(error);
 			}
